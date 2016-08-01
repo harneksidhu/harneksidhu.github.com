@@ -3,19 +3,30 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Managing your Digital Ocean Droplets using Ansible | Harnek</title>
+  <title>Introduction to Managing your DigitalOcean Droplets using Ansible | Harnek&#39;s Blog</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="The ProblemThere are a series of steps required before you can deploy an applicatoin to the cloud. You must first pick an operating system and start up a server using your cloud provider’s interface.">
+  <meta name="description" content="The ProblemThere are a series of steps required before you can deploy an application to the cloud. It usually looks like the following:
+
+Start up a server using your cloud provider’s interface. 
+SSH i">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Managing your Digital Ocean Droplets using Ansible">
+<meta property="og:title" content="Introduction to Managing your DigitalOcean Droplets using Ansible">
 <meta property="og:url" content="http://harneksidhu.com/2016/07/31/ansible-digital-ocean/index.html">
-<meta property="og:site_name" content="Harnek">
-<meta property="og:description" content="The ProblemThere are a series of steps required before you can deploy an applicatoin to the cloud. You must first pick an operating system and start up a server using your cloud provider’s interface.">
+<meta property="og:site_name" content="Harnek's Blog">
+<meta property="og:description" content="The ProblemThere are a series of steps required before you can deploy an application to the cloud. It usually looks like the following:
+
+Start up a server using your cloud provider’s interface. 
+SSH i">
 <meta property="og:image" content="http://harneksidhu.com/2016/07/31/ansible-digital-ocean/project-structure.png">
-<meta property="og:updated_time" content="2016-07-31T21:57:28.000Z">
+<meta property="og:image" content="http://harneksidhu.com/2016/07/31/ansible-digital-ocean/playbook-output.png">
+<meta property="og:image" content="http://harneksidhu.com/2016/07/31/ansible-digital-ocean/digital-ocean-dashboard.png">
+<meta property="og:updated_time" content="2016-08-01T21:10:22.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Managing your Digital Ocean Droplets using Ansible">
-<meta name="twitter:description" content="The ProblemThere are a series of steps required before you can deploy an applicatoin to the cloud. You must first pick an operating system and start up a server using your cloud provider’s interface.">
+<meta name="twitter:title" content="Introduction to Managing your DigitalOcean Droplets using Ansible">
+<meta name="twitter:description" content="The ProblemThere are a series of steps required before you can deploy an application to the cloud. It usually looks like the following:
+
+Start up a server using your cloud provider’s interface. 
+SSH i">
 <meta name="twitter:image" content="http://harneksidhu.com/2016/07/31/ansible-digital-ocean/project-structure.png">
   
   
@@ -33,7 +44,7 @@
 <header id="header">
 	<div class="header-left-section">
 		<h1 class="blog-title">
-			<a href="/">Harnek</a>
+			<a href="/">Harnek&#39;s Blog</a>
 		</h1>
 		<div class="social-links">
 			<a href="https://github.com/harneksidhu" id="nav-github-link" class="nav-icon" title="Github Profile"></a>
@@ -58,7 +69,7 @@
   <time datetime="2016-07-31T21:30:50.000Z" itemprop="datePublished">2016-07-31</time>
 </a>
 		</span>
-		<span class="meta-elements author">John Doe</span>
+		<span class="meta-elements author">Harnek Sidhu</span>
 		<div class="commentscount">
 			
 		</div>
@@ -68,33 +79,97 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      Managing your Digital Ocean Droplets using Ansible
+      Introduction to Managing your DigitalOcean Droplets using Ansible
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<h2 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h2><p>There are a series of steps required before you can deploy an applicatoin to the cloud. You must first pick an operating system and start up a server using your cloud provider’s interface. Then you must ssh into the machine and install all the typical libraries, dependencies, and packages that your application server needs. This process seems to work great for small pet projects, but imagine what happens if you need to restart your server from scratch? You would have to re-do everything manually which takes time and of course effort. A shell script might be helpful in automating some common tasks:</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apt-get update</span><br><span class="line">apt-get install nginx</span><br><span class="line">apt-get install pip</span><br><span class="line">pip-install django</span><br><span class="line">apt-get install postgresql</span><br></pre></td></tr></table></figure>
-<p>But you would still need to figure out how to copy over application configuration files or check the status of background services. You would still need to manually login to your cloud provder’s user interface to spin up a virtual machine. You would still need to ssh into the machine and manually copy over your script file to run. This is manual/tedious work and it becomes much more difficult when you have to manage a large number of servers on your own.</p>
-<h2 id="Ansible-automate-everything"><a href="#Ansible-automate-everything" class="headerlink" title="Ansible - automate everything"></a>Ansible - automate everything</h2><p><a href="https://www.ansible.com/" target="_blank" rel="external">Ansible</a> is a configuration management software that helps you automate your IT infrastructure. It basically works by reading a yml file of instructions that describes exactly what actions you want to perform on a remote machine. It uses SSH to automatically connect to a machine and then performs the actions defined in your yml file. Since it connects to the cloud machine on its own, you should never access the remote terminal when initially setting up your server. </p>
-<p>There are a lot of concepts about Ansible that this blog post is not going to cover. The best way to see the value of Ansible is with a live example.</p>
-<h2 id="Requirements"><a href="#Requirements" class="headerlink" title="Requirements"></a>Requirements</h2><h6 id="Sample-Project"><a href="#Sample-Project" class="headerlink" title="Sample Project"></a>Sample Project</h6><p>A <a href="https://github.com/harneksidhu/blog-examples/tree/master/ansible-digital-ocean" target="_blank" rel="external">sample project</a> with an Ansible infrastructure is provided for your convenience. This should be cloned onto your machine. The project utilizes a virtual machine to encapsulate Ansible as well as any required modules that it needs in order to operate. The virtual machine acts as the control machine from which all ansible commands will be performed. We could have avoided the virtual machine all together and just installed Ansible on your host operating system, but I found that having a consistent environment is beneficial especially if you want to be able to work on a variety of different operating systems.</p>
-<h6 id="VirtualBox-Vagrant"><a href="#VirtualBox-Vagrant" class="headerlink" title="VirtualBox/Vagrant"></a>VirtualBox/Vagrant</h6><p>You will need to do is install <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">Virtualbox</a> and <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">Vagrant</a>. Virtualbox provides you with the ability to run a virtual machine on your host operating system. You can think of Vagrant as a utility software that wraps around VirtualBox and provides you with the ability to provision a virtual machine in an automated way. Click <a href="https://www.vagrantup.com/docs/provisioning/" target="_blank" rel="external">here</a> if you would like to learn more about how this works and the benefits of provisioning development environments.</p>
-<h6 id="DigitalOcean"><a href="#DigitalOcean" class="headerlink" title="DigitalOcean"></a>DigitalOcean</h6><p>Create an account DigitalOcean if you have not already. If you would like to have a $10 credit, you can use my referall link <a href="https://m.do.co/c/385c5ec4be11" target="_blank" rel="external">here</a>. After creating your account, you will need to generate an <a href="https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2" target="_blank" rel="external">API token</a> that Ansible can use in order to send requests to your account.</p>
-<h6 id="Create-public-private-ssh-keys"><a href="#Create-public-private-ssh-keys" class="headerlink" title="Create public/private ssh keys"></a>Create public/private ssh keys</h6><p>The sample project requires a public/private ssh key pair. You could use <code>ssh-keygen</code> or any alternative software you feel comfortable with.</p>
-<h2 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h2><p>The sample project<br><img src="/2016/07/31/ansible-digital-ocean/project-structure.png" alt="This is an example image" title="This is an example image"></p>
-<h2 id="S"><a href="#S" class="headerlink" title="S"></a>S</h2><h2 id="yo"><a href="#yo" class="headerlink" title="yo"></a>yo</h2><p>This is an introductory post aimed at helping beginner</p>
-<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br><span class="line">apt-get install</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+    	<h2 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h2><p>There are a series of steps required before you can deploy an application to the cloud. It usually looks like the following:</p>
+<ol>
+<li>Start up a server using your cloud provider’s interface. </li>
+<li>SSH into the machine to install all the required dependencies that your application server needs. </li>
+<li>Copy over your application build onto the server so that it can be deployed.</li>
+</ol>
+<p>This process seems to work great for small pet projects, but imagine what happens if you need to restart your server from scratch? You would have to redo everything manually which could take a lot of time. It gets even worse if you have a large infrastructure to manage that is comprised of many machines. </p>
+<h2 id="Ansible-Automate-Everything"><a href="#Ansible-Automate-Everything" class="headerlink" title="Ansible - Automate Everything"></a>Ansible - Automate Everything</h2><p>In this post, I’m going to show you how you can use <a href="https://www.ansible.com/" target="_blank" rel="external">Ansible</a> to automate everything. Ansible<br>is a configuration management software that can help you automate your IT infrastructure. It basically works by reading a yml file of instructions that describes exactly what actions you want to perform on a remote machine. It uses ssh to connect to a machine and then performs the actions defined in your yml file. </p>
+<p>The goal of this post is to help you start thinking about automation by showing a very basic example of a server setup. There are a ton of core concepts of Ansible that this blog post is not going to cover since it is out of scope. However, I feel this post is still valuable for those who are new to automation and want to quickly see what it is all about.</p>
+<h2 id="Requirements"><a href="#Requirements" class="headerlink" title="Requirements"></a>Requirements</h2><h6 id="Sample-Project"><a href="#Sample-Project" class="headerlink" title="Sample Project"></a>Sample Project</h6><p>A <a href="https://github.com/harneksidhu/blog-examples/tree/master/ansible-digital-ocean" target="_blank" rel="external">sample project</a> with an Ansible infrastructure is provided for your convenience. This should be cloned onto your machine. The project utilizes a virtual machine to encapsulate Ansible as well as any required modules that it needs in order to operate. The virtual machine acts as the control machine from which all Ansible commands will be executed. We could have avoided the virtual machine and just installed Ansible on your host operating system, but I found that having a consistent environment is beneficial especially if you want to be able to work on a variety of different operating systems.</p>
+<h6 id="VirtualBox-Vagrant"><a href="#VirtualBox-Vagrant" class="headerlink" title="VirtualBox/Vagrant"></a>VirtualBox/Vagrant</h6><p>You will need to install <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">Virtualbox</a> and <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">Vagrant</a>. Virtualbox provides you with the ability to run a virtual machine on your host operating system. You can think of Vagrant as a utility software that wraps around VirtualBox and provides you with the ability to provision a virtual machine in an automated way. Click <a href="https://www.vagrantup.com/docs/provisioning/" target="_blank" rel="external">here</a> if you would like to learn more about how it works.</p>
+<h6 id="DigitalOcean"><a href="#DigitalOcean" class="headerlink" title="DigitalOcean"></a>DigitalOcean</h6><p>Create an account DigitalOcean if you have not already. If you would like to have a $10 credit, you can use my referral link <a href="https://m.do.co/c/385c5ec4be11" target="_blank" rel="external">here</a>. After creating your account, you will need to generate an <a href="https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2" target="_blank" rel="external">API token</a> that Ansible can use in order to send requests to your account.</p>
+<h6 id="Create-public-private-ssh-keys"><a href="#Create-public-private-ssh-keys" class="headerlink" title="Create public/private ssh keys"></a>Create public/private ssh keys</h6><p>The sample project requires a public/private ssh key pair. You could use <code>ssh-keygen</code> or any alternative software you feel comfortable creating key pairs with.</p>
+<h2 id="Organizing-the-Sample-Project"><a href="#Organizing-the-Sample-Project" class="headerlink" title="Organizing the Sample Project"></a>Organizing the Sample Project</h2><p>With the sample project cloned onto your machine, you will need to perform the following steps in order for the demo to work:</p>
+<ol>
+<li>Edit the <code>group_vars/all.yml</code> file and replace <code>&lt;Enter_API_Token&gt;</code> with your DigitalOcean API token.</li>
+<li>Place the ssh public/private key pair under the <code>keys/</code> folder with the file names <code>id_rsa</code> and <code>id_rsa.pub</code>.</li>
+</ol>
+<p>Your project directory should now look like this:</p>
+<img src="/2016/07/31/ansible-digital-ocean/project-structure.png" alt="project-structure.png" title="">
+<p>After that, all you have to do is run </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br></pre></td></tr></table></figure>
+<p>on your favourite terminal client to spin up the virtual machine. This should take a while as it downloads an ubuntu image and installs all the required modules that Ansible needs in order to operate the demo.</p>
+<h2 id="Run-the-demo"><a href="#Run-the-demo" class="headerlink" title="Run the demo"></a>Run the demo</h2><p>In summary, the sample project is a simple Ansible script that performs the following actions:</p>
+<ol>
+<li>Instructs DigitalOcean to create a droplet</li>
+<li>Installs Nginx HTTP server</li>
+<li>Configures Nginx to serve a static web page</li>
+</ol>
+<p>To see this in action, run the following commands:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh</span><br><span class="line"><span class="built_in">cd</span> ansible-digital-ocean/</span><br><span class="line">ansible-playbook setup.yml</span><br></pre></td></tr></table></figure>
+<p>All we did was we connected to the local virtual machine which has Ansible installed using SSH. We then changed the directory on the machine to where our Ansible script (setup.yml) is stored. We finally used the <code>ansible-playbook setup.yml</code> command to fire the script. </p>
+<p>You should see an output similar to what is shown below:</p>
+<img src="/2016/07/31/ansible-digital-ocean/playbook-output.png" alt="playbook-output.png" title="">
+<p>If you head on over to your DigitalOcean dashboard, you should see a droplet that has been automatically created for you:</p>
+<img src="/2016/07/31/ansible-digital-ocean/digital-ocean-dashboard.png" alt="digital-ocean-dashboard.png" title="">
+<p>Since the server is running, you should be able to hit the IP address on your browser to see Nginx serving a basic HTML page.</p>
+<h2 id="Explanation"><a href="#Explanation" class="headerlink" title="Explanation"></a>Explanation</h2><p>Let’s browse through <code>setup.yml</code> and explain what is happening step by step. <code>setup.yml</code> is defined as a playbook. A playbook is composed of one or more <code>plays</code>. The goal of a <code>play</code> is to execute a set of tasks to a group of hosts. <code>setup.yml</code> is composed of three plays. The first play communicates with DigitalOcean to create a droplet. The second play connects to the droplet to install <code>python2</code> which is required for Ansible to operate correctly. The third play installs and configures Nginx.</p>
+<p>The following snippet contains the first play:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">- hosts:</span> localhost</span><br><span class="line"><span class="attr">  tasks:</span></span><br><span class="line"><span class="attr">  - name:</span> Store public ssh key</span><br><span class="line"><span class="attr">    shell:</span> cat keys/id_rsa.pub</span><br><span class="line"><span class="attr">    register:</span> public_key</span><br><span class="line"><span class="attr">  - name:</span> Store public ssh key in digital ocean</span><br><span class="line"><span class="attr">    digital_ocean:</span></span><br><span class="line"><span class="attr">      state:</span> present</span><br><span class="line"><span class="attr">      command:</span> ssh</span><br><span class="line"><span class="attr">      name:</span> ansible_ssh_key</span><br><span class="line"><span class="attr">      ssh_pub_key:</span> <span class="string">"<span class="template-variable">&#123;&#123; public_key.stdout &#125;&#125;</span>"</span></span><br><span class="line"><span class="attr">      api_token:</span> <span class="string">"<span class="template-variable">&#123;&#123; digital_ocean_api_token &#125;&#125;</span>"</span></span><br><span class="line"><span class="attr">      unique_name:</span> <span class="literal">yes</span></span><br><span class="line"><span class="attr">    register:</span> my_key</span><br><span class="line"><span class="attr">  - name:</span> Create droplet</span><br><span class="line"><span class="attr">    digital_ocean:</span></span><br><span class="line"><span class="attr">        state:</span> present</span><br><span class="line"><span class="attr">        command:</span> droplet</span><br><span class="line"><span class="attr">        name:</span> host0</span><br><span class="line"><span class="attr">        api_token:</span> <span class="string">"<span class="template-variable">&#123;&#123; digital_ocean_api_token &#125;&#125;</span>"</span></span><br><span class="line"><span class="attr">        size_id:</span> <span class="number">512</span>mb</span><br><span class="line"><span class="attr">        region_id:</span> tor1</span><br><span class="line"><span class="attr">        image_id:</span> ubuntu<span class="bullet">-16</span><span class="bullet">-04</span>-x64</span><br><span class="line"><span class="attr">        unique_name:</span> <span class="literal">yes</span></span><br><span class="line"><span class="attr">        ssh_key_ids:</span> <span class="string">"<span class="template-variable">&#123;&#123; my_key.ssh_key.id &#125;&#125;</span>"</span></span><br><span class="line"><span class="attr">    register:</span> host0</span><br><span class="line"><span class="attr">  - add_host:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">"<span class="template-variable">&#123;&#123; host0.droplet.ip_address &#125;&#125;</span>"</span></span><br><span class="line"><span class="attr">      groups:</span> host0</span><br><span class="line"><span class="attr">      ansible_ssh_private_key_file:</span> keys/id_rsa</span><br><span class="line"><span class="attr">  - pause:</span> seconds=<span class="number">20</span></span><br></pre></td></tr></table></figure>
+<p>There is unfortunately a lot going on here so I will try to summarize it in point form:</p>
+<ul>
+<li><p>The <code>- hosts: localhost</code> line tells Ansible we want to run the tasks of this play on localhost since we are only communicating with DigitalOcean’s API at this point.</p>
+</li>
+<li><p>In the first task <code>shell: cat keys/id_rsa.pub</code> we are utilizing the <a href="http://docs.ansible.com/ansible/shell_module.html" target="_blank" rel="external">shell module</a> to run a cat command on the local virtual machine. We are redirecting the output of the cat command onto a temporary <a href="http://docs.ansible.com/ansible/playbooks_variables.html#registered-variables" target="_blank" rel="external">registered variable</a> called <code>public_key</code> In summary, we are storing the public ssh key onto a temporary variable that can be used in the next step.</p>
+</li>
+<li><p>In the <code>- name: Store public ssh key in digital ocean</code> and <code>- name: Create droplet</code> tasks, we are utilizing the <a href="http://docs.ansible.com/ansible/digital_ocean_module.html" target="_blank" rel="external">digital_ocean</a> module to communicate with DigitalOcean’s API. The first task instructs DigitalOcean to store our public ssh key. The second task tells it to create a droplet. We catch the <code>api_token</code> from the variables file (<code>group_vars/all.yml</code>) using the <a href="http://docs.ansible.com/ansible/playbooks_variables.html#hey-wait-a-yaml-gotcha" target="_blank" rel="external">curly brackets</a> syntax.</p>
+</li>
+<li><p>The final task utilizes <a href="http://docs.ansible.com/ansible/add_host_module.html" target="_blank" rel="external">add_host</a> module to store the IP address of the droplet as well as the corresponding private key used to ssh into it. We are storing the machine onto a hostname variable called <code>host0</code>.</p>
+</li>
+</ul>
+<p>In the next play, we are going to connect to <code>host0</code> and install python2 since it is a <a href="http://docs.ansible.com/ansible/intro_installation.html#managed-node-requirements" target="_blank" rel="external">requirement</a> in order to execute commands using Ansible’s core modules.</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">- hosts:</span> host0</span><br><span class="line"><span class="attr">  remote_user:</span> root</span><br><span class="line"><span class="attr">  gather_facts:</span> <span class="literal">no</span></span><br><span class="line"><span class="attr">  tasks:</span></span><br><span class="line"><span class="attr">  - name:</span> Install python2</span><br><span class="line"><span class="attr">    raw:</span> apt-get -y install python-minimal</span><br></pre></td></tr></table></figure>
+<p>In summary we are:</p>
+<ul>
+<li><p>Using <code>host0</code> instead of <code>localhost</code> since our goal is to run tasks on the remote machine. Since we have already registered host0 with the appropriate IP address and ssh key, Ansible should be able to handle the connection automatically.  </p>
+</li>
+<li><p>Connecting to the machine using <code>root</code> since that is the only available user.</p>
+</li>
+<li><p>Utilizing <a href="http://docs.ansible.com/ansible/raw_module.html" target="_blank" rel="external">raw</a> module to execute the installation of python2. Raw module is used here because all other core modules won’t work until python2 is installed.</p>
+</li>
+</ul>
+<p>Our last play is simple as we are going to setup/configure our HTTP server.</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">- hosts:</span> host0</span><br><span class="line"><span class="attr">  remote_user:</span> root</span><br><span class="line"><span class="attr">  tasks:</span></span><br><span class="line"><span class="attr">- name:</span> Install nginx</span><br><span class="line"><span class="attr">  apt:</span> </span><br><span class="line"><span class="attr">    name:</span> nginx</span><br><span class="line"><span class="attr">    state:</span> present</span><br><span class="line"><span class="attr">- name:</span> Update nginx.conf</span><br><span class="line"><span class="attr">  copy:</span></span><br><span class="line"><span class="attr">    src:</span> files/nginx.conf</span><br><span class="line"><span class="attr">    dest:</span> /etc/nginx/nginx.conf</span><br><span class="line"><span class="attr">- name:</span> Create /home/static directory</span><br><span class="line"><span class="attr">  file:</span></span><br><span class="line"><span class="attr">    path:</span> /home/static</span><br><span class="line"><span class="attr">    state:</span> directory</span><br><span class="line"><span class="attr">- name:</span> Copy index.html</span><br><span class="line"><span class="attr">  copy:</span></span><br><span class="line"><span class="attr">    src:</span> files/index.html</span><br><span class="line"><span class="attr">    dest:</span> /home/static/index.html</span><br><span class="line"><span class="attr">- name:</span> Restart nginx service</span><br><span class="line"><span class="attr">  service:</span></span><br><span class="line"><span class="attr">    name:</span> nginx</span><br><span class="line"><span class="attr">    state:</span> restarted</span><br></pre></td></tr></table></figure>
+<p>In summary we are:</p>
+<ul>
+<li><p>Connecting to the host machine again using <code>host0</code>.</p>
+</li>
+<li><p>Intalling Nginx using the <a href="http://docs.ansible.com/ansible/apt_module.html" target="_blank" rel="external">apt</a> module.</p>
+</li>
+<li><p>Copying the <code>nginx.conf</code> configuration file using the <a href="http://docs.ansible.com/ansible/copy_module.html" target="_blank" rel="external">copy</a> module.</p>
+</li>
+<li><p>Creating the <code>/home/static</code> file path and copying our index.html file onto the remote server.</p>
+</li>
+<li><p>Restarting the Nginx webserver using the <a href="http://docs.ansible.com/ansible/service_module.html" target="_blank" rel="external">service</a> module.</p>
+</li>
+</ul>
+<h2 id="Closing-Thoughts"><a href="#Closing-Thoughts" class="headerlink" title="Closing Thoughts"></a>Closing Thoughts</h2><p>The most important learning that I want you to take out of this blog post is to have the mindset of <strong>automating everything</strong>. Whether it may be interfacing with a cloud provider to spin up/down virtual machines or installing/configuring applications -you will save a lot of time in the long run if you put that effort up front to focus on automation.</p>
+<p>Getting used to managing servers with Ansible takes a little bit of effort as there is a learning curve involved with the software. There are a ton of <a href="http://docs.ansible.com/ansible/modules_by_category.html" target="_blank" rel="external">core modules</a> available and <a href="https://github.com/ansible/ansible-modules-extras" target="_blank" rel="external">many extra modules</a> that are in active development. The possibilities are endless with what you can accomplish with it.</p>
+<h2 id="Further-Reading"><a href="#Further-Reading" class="headerlink" title="Further Reading"></a>Further Reading</h2><p>If you are interested in learning Ansible at a more in-depth level, here are a list of resources I found to be helpful:</p>
+<ul>
+<li><a href="https://www.ansible.com/webinars-training" target="_blank" rel="external">https://www.ansible.com/webinars-training</a></li>
+<li><a href="http://docs.ansible.com/ansible/index.html" target="_blank" rel="external">http://docs.ansible.com/ansible/index.html</a></li>
+</ul>
 
     
 	</div>
@@ -125,10 +200,10 @@
 </div>
 <footer id="footer">
 	<h1 class="footer-blog-title">
-		<a href="/">Harnek</a>
+		<a href="/">Harnek&#39;s Blog</a>
 	</h1>
 	<span class="copyright">
-		&copy; 2016 John Doe<br>
+		&copy; 2016 Harnek Sidhu<br>
 		Modify from <a href="http://sanographix.github.io/tumblr/apollo/" target="_blank">Apollo</a> theme, designed by <a href="http://www.sanographix.net/" target="_blank">SANOGRAPHIX.NET</a><br>
 		Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
 	</span>
